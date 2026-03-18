@@ -1,4 +1,3 @@
-
 # ✅ Proyecto Completo: "Maneja tus Gastos"
 
 ## 📁 Estructura del Monorepo
@@ -70,11 +69,11 @@ cp backend/.env.example backend/.env
 docker-compose up --build
 ```
 
-| Servicio    | URL                          |
-|-------------|------------------------------|
-| 🌐 Frontend | http://localhost:4200        |
-| ⚙️ Backend  | http://localhost:3000        |
-| ❤️ Health   | http://localhost:3000/health |
+| Servicio     | URL                          |
+| ------------ | ---------------------------- |
+| 🌐 Frontend  | http://localhost:4200        |
+| ⚙️ Backend | http://localhost:3000        |
+| ❤️ Health  | http://localhost:3000/health |
 
 ```bash
 # Bajar contenedores
@@ -105,20 +104,24 @@ npm test
 ## 🔥 PASO A PASO: Firebase Hosting
 
 ### Paso 1 — Crear proyecto Firebase
+
 1. Ir a https://console.firebase.google.com
 2. **"Agregar proyecto"** → Nombre: `maneja-tus-gastos`
 3. Desactivar Google Analytics → **"Crear proyecto"**
 
 ### Paso 2 — Instalar Firebase CLI
+
 ```bash
 npm install -g firebase-tools
 firebase login
 ```
 
 ### Paso 3 — Inicializar Hosting
+
 ```bash
 cd frontend
 ```
+
 - "default": "maneja-tus-gastos" modificar esto en .firebaserc
 
 ```bash
@@ -126,6 +129,7 @@ firebase init hosting
 ```
 
 Responder:
+
 - **Project**: seleccionar `maneja-tus-gastos`
 - **Public directory**: `dist/frontend/browser`
 - **Single-page app**: `Yes`
@@ -146,18 +150,21 @@ Si no funciona el paso anterior modificar el archivo `.firebaserc` con lo siguie
 Esto actualiza `.firebaserc` con tu project ID real.
 
 ### Paso 4 — Service Account para GitHub Actions
+
 - Ir a agregar app
 - Poner el mismo nombre del proyecto
--  todo siguiente y siguiente hasta ir a consola
+- todo siguiente y siguiente hasta ir a consola
 
 1. Firebase Console → ⚙️ **Configuración del proyecto** → **Cuentas de servicio**
 2. **"Generar nueva clave privada"** → descarga el JSON
 3. GitHub repo → **Settings → Secrets and variables → Actions → New secret**:
-    - `FIREBASE_SERVICE_ACCOUNT` → pegar contenido completo del JSON
-    - `FIREBASE_PROJECT_ID` → ej: `maneja-tus-gastos-abc12`
+   - `FIREBASE_SERVICE_ACCOUNT` → pegar contenido completo del JSON
+   - `FIREBASE_PROJECT_ID` → ej: `maneja-tus-gastos-abc12`
 
-### Paso 5 — Actualizar URL del backend en producción
+### Paso 5 — Actualizar URL del backaend en producción
+
 Editar `frontend/src/environments/environment.prod.ts`:
+
 ```typescript
 export const environment = {
   production: true,
@@ -166,6 +173,7 @@ export const environment = {
 ```
 
 ### Paso 6 — Primer deploy manual (opcional)
+
 ```bash
 cd frontend
 npm run build:prod
@@ -173,6 +181,7 @@ firebase deploy --only hosting
 ```
 
 ### ✅ Deploy automático
+
 A partir de ahora, cada `git push` a `main` con cambios en `frontend/` dispara el workflow automáticamente.
 
 ---
@@ -180,38 +189,44 @@ A partir de ahora, cada `git push` a `main` con cambios en `frontend/` dispara e
 ## 🟢 PASO A PASO: Render.com
 
 ### Paso 1 — Crear cuenta
+
 Ir a https://render.com → **Sign up with GitHub**
 
 ### Paso 2 — Crear PostgreSQL
+
 1. Dashboard → **New → PostgreSQL**
 2. Nombre: `gastos-db` | Plan: **Free** → **Create Database**
 3. Copiar la **"External Database URL"** (la necesitarás en el paso 3)
 
 ### Paso 3 — Crear Web Service
+
 1. Dashboard → **New → Web Service**
 2. Conectar tu repositorio de GitHub
 3. Configurar:
-    - **Name**: `maneja-tus-gastos-api`
-    - **Root Directory**: `backend`
-    - **Runtime**: `Docker` ← usa tu Dockerfile
-    - **Plan**: **Free**
+   - **Name**: `maneja-tus-gastos-api`
+   - **Root Directory**: `backend`
+   - **Runtime**: `Docker` ← usa tu Dockerfile
+   - **Plan**: **Free**
 4. **Environment Variables**:
-    - `DATABASE_URL` → pegar la URL de PostgreSQL del paso 2
-    - `NODE_ENV` → `production`
-    - `PORT` → `3000`
+   - `DATABASE_URL` → pegar la URL de PostgreSQL del paso 2
+   - `NODE_ENV` → `production`
+   - `PORT` → `3000`
 5. **Create Web Service** → esperar ~5 min
 6. Copiar la URL del servicio: `https://maneja-tus-gastos-api.onrender.com`
 
 ### Paso 4 — Deploy Hook para GitHub Actions
+
 1. Web Service → **Settings → Deploy Hook**
 2. Copiar la URL (algo como `https://api.render.com/deploy/srv-xxx?key=yyy`)
 3. GitHub repo → **Settings → Secrets → New secret**:
-    - `RENDER_DEPLOY_HOOK_URL` → pegar la URL
+   - `RENDER_DEPLOY_HOOK_URL` → pegar la URL
 
 ### Paso 5 — Actualizar URL en el frontend
+
 Usar la URL del paso 3 en `environment.prod.ts` (ver Paso 5 de Firebase).
 
 ### ✅ Deploy automático
+
 Cada `git push` a `main` con cambios en `backend/` dispara el workflow.
 
 > ⚠️ **Nota para alumnos**: El free tier de Render "duerme" el servicio
@@ -221,25 +236,26 @@ Cada `git push` a `main` con cambios en `backend/` dispara el workflow.
 
 ## ⚙️ GitHub Actions — Resumen de Secrets
 
-| Secret | Para qué sirve |
-|--------|---------------|
+| Secret                       | Para qué sirve                      |
+| ---------------------------- | ------------------------------------ |
 | `FIREBASE_SERVICE_ACCOUNT` | Autenticar deploy a Firebase Hosting |
-| `FIREBASE_PROJECT_ID` | Identificar el proyecto Firebase |
-| `RENDER_DEPLOY_HOOK_URL` | Disparar deploy en Render.com |
+| `FIREBASE_PROJECT_ID`      | Identificar el proyecto Firebase     |
+| `RENDER_DEPLOY_HOOK_URL`   | Disparar deploy en Render.com        |
 
 ---
 
 ## 📡 API REST — Endpoints
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/expenses` | Listar todos los gastos |
-| GET | `/api/expenses/:id` | Obtener gasto por ID |
-| POST | `/api/expenses` | Crear nuevo gasto |
-| PUT | `/api/expenses/:id` | Actualizar gasto |
-| DELETE | `/api/expenses/:id` | Eliminar gasto |
+| Método | Endpoint              | Descripción            |
+| ------- | --------------------- | ----------------------- |
+| GET     | `/api/expenses`     | Listar todos los gastos |
+| GET     | `/api/expenses/:id` | Obtener gasto por ID    |
+| POST    | `/api/expenses`     | Crear nuevo gasto       |
+| PUT     | `/api/expenses/:id` | Actualizar gasto        |
+| DELETE  | `/api/expenses/:id` | Eliminar gasto          |
 
 **Body ejemplo:**
+
 ```json
 {
   "description": "Supermercado",
